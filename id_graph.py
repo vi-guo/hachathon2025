@@ -48,5 +48,23 @@ print("a_foo → table2 ?", can_user_access("a_foo", "table2", G))  # False
 print("a_bar → table2 ?", can_user_access("a_bar", "table2", G))  # True
 
 import matplotlib.pyplot as plt
-nx.draw(G, with_labels=True, node_size=1800, font_size=10)
+pos = nx.spring_layout(G, seed=42)       # any layout you like
+nx.draw_networkx_nodes(G, pos, node_size=1800)
+nx.draw_networkx_labels(G, pos)
+
+# edge colors by relation (purely cosmetic)
+edge_colors = [
+    {"assume": "tab:blue",
+     "access": "tab:green",
+     "in_db": "tab:gray"}[d["relation"]]
+    for _, _, d in G.edges(data=True)
+]
+
+nx.draw_networkx_edges(G, pos, edge_color=edge_colors, arrows=True)
+nx.draw_networkx_edge_labels(
+    G, pos,
+    edge_labels={(u, v): d["relation"] for u, v, d in G.edges(data=True)},
+    font_size=8
+)
+plt.axis("off")
 plt.show()
