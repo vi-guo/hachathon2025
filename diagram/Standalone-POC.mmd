@@ -1,0 +1,36 @@
+flowchart TB
+    A[Client / LLM Agent]
+    style A fill:#f6f6f6,stroke:#999
+
+    subgraph P [MCP Proxy]
+      direction TB
+      P1[Auth Layer - Kerberos / mTLS / OAuth]
+      P2[Policy Engine - ABAC / RBAC / Compliance Rules]
+      P3[Protocol Adapter & Router - WebSocket, streamable-http, gRPC]
+      P4[Observability - Logs, Trace, Metrics]
+    end
+    style P fill:#eef8ff,stroke:#5aa0d8
+
+    subgraph S [MCP Server Toolset]
+      direction LR
+      S1[Tool A - DB Query]
+      S2[Tool B - Files / Knowledge Base]
+      S3[Tool C - Workflow / Automation]
+    end
+    style S fill:#f9f5ff,stroke:#a78bfa
+
+    subgraph R [Backend Resources]
+      R1[(Database)]
+      R2[(Object Storage / Files)]
+      R3[(HTTP API / Internal Services)]
+      R4[(Kafka Cluster)]
+    end
+    style R fill:#fffaf0,stroke:#e0b56f
+
+    A -->|MCP Protocol| P
+    P -->|Forward / Aggregate| S
+    S1 --> R1
+    S2 --> R2
+    S3 --> R3
+    S3 --> R4
+    R4 --> S3

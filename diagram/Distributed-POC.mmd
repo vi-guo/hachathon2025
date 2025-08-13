@@ -1,0 +1,57 @@
+flowchart TB
+    subgraph C [Client Access Layer]
+      C1[LLM Client A]
+      C2[LLM Client B]
+      C3[Agent / Orchestrator]
+    end
+    style C fill:#f6f6f6,stroke:#999
+
+    G[API Gateway / LB - WAF, Rate Limit]
+    style G fill:#e7f5ff,stroke:#5aa0d8
+
+    subgraph PX [MCP Proxy Cluster]
+      direction LR
+      PX1[Proxy Node #1]
+      PX2[Proxy Node #2]
+      PX3[Proxy Node #N]
+    end
+    style PX fill:#eef8ff,stroke:#5aa0d8
+
+    subgraph Ctl [Control & Shared Services]
+      direction TB
+      KDC[Kerberos KDC / IdP]
+      TBS[Token Broker - Short-Lived Credentials / STS]
+      POL[Policy Engine / PDP]
+      OBS[Centralized Observability - Logs / Traces / Metrics]
+      CACHE[Distributed Cache / Redis]
+    end
+    style Ctl fill:#f0fff4,stroke:#38a169
+
+    subgraph SV [Backend MCP Server Pool]
+      direction LR
+      S1[(Team A MCP Server)]
+      S2[(Team B MCP Server)]
+      S3[(Controlled Zone / DMZ MCP Server)]
+    end
+    style SV fill:#f9f5ff,stroke:#a78bfa
+
+    subgraph RES [Resources & Data Domains]
+      DB[(Prod/Stage Database Cluster)]
+      OBJ[(Object Storage / Document Repository)]
+      API[(Internal / Third-Party API)]
+      QUEUE[(Events / Queue / Workflow)]
+    end
+    style RES fill:#fffaf0,stroke:#e0b56f
+
+    C --> G --> PX
+    PX <--> Ctl
+    PX --> SV
+    S1 --> DB
+    S2 --> OBJ
+    S3 --> API
+    SV --> QUEUE
+
+    %% Side-link examples
+    KDC -. Ticket Issuance / Exchange .-> PX
+    TBS -. Short-Lived Token / mTLS Material .-> PX
+    POL -. Decision / Audit Tag .-> PX

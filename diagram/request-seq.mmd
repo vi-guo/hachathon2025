@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant C as Client / LLM Agent
+    participant P as MCP Proxy
+    participant K as Kerberos KDC / IdP
+    participant T as Token Broker
+    participant S as MCP Server Tool
+    participant R as Backend Resource
+
+    C->>P: Request to invoke tool
+    P->>K: Validate Kerberos TGT / Obtain Service Ticket
+    K-->>P: Service Ticket
+    P->>T: Request short-lived credential for function account
+    T-->>P: Short-lived credential (mTLS cert / token)
+    P->>S: Call tool with delegated credential
+    S->>R: Query / operation using delegated credential
+    R-->>S: Data / Result
+    S-->>P: Tool result
+    P-->>C: Final response
